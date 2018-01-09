@@ -65,7 +65,12 @@ var _ = function (input, o) {
 
 	this._events = {
 		input: {
-			"input": this.evaluate.bind(this),
+			//There is a bug in IE10-11 with firing "input" event when an input field with placeholder is focused.
+			//MS have repaired it in EDGE, but not in IE. See link below.
+			//https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/274987/
+			//That is why, instead of "Input" event, we need to evaluate awesomplete on keydown.
+
+			// "input": this.evaluate.bind(this),
 			"blur": this.close.bind(this, { reason: "blur" }),
 			"keydown": function(evt) {
 				var c = evt.keyCode;
@@ -84,7 +89,13 @@ var _ = function (input, o) {
 						evt.preventDefault();
 						me[c === 38? "previous" : "next"]();
 					}
+					else {
+						me.evaluate(this);
+					}
+				} else {
+					me.evaluate(this);
 				}
+
 			}
 		},
 		form: {
